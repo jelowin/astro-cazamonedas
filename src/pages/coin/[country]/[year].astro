@@ -1,0 +1,50 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const coins = await getCollection('coins');
+
+  // Genera rutas únicas basadas en `country` y `year`
+  const paths = coins.map((coin) => ({
+    params: { country: coin.data.countrySlug, year: coin.data.year.toString() },
+    props: {coin}
+  }))
+
+  return paths;
+}
+
+// Obtener parámetros de URL y filtrar contenido
+const { country: countryParam, year: yearParam } = Astro.params;
+const coins = await getCollection('coins');
+const filteredCoins = coins.filter((coin) =>
+  coin.country === countryParam && coin.year.toString() === yearParam
+);
+
+const { coin } = Astro.props
+const { data, slug } = coin
+const { country, countrySlug, imageUrl, reason, year  } = data
+const { Content } = await render(coin)
+
+export const prerender = true
+---
+<Layout title={`${country}-${year}`}>
+  <div class="flex gap-12">
+    <aside class="flex flex-col items-center gap-4">
+      <a href='/' class="hover:underline opacity-70">← Volver atrás</a>
+      <img transition:name={`img-${slug}`} class="rounded w-72 h-auto" src={`/${imageUrl}`} alt={country} />
+    </aside>
+
+    <main class="max-w-3xl">
+      <h1 transition:name={`title-${slug}`} class="text-4xl font-bold mb-4">{country}-{year}</h1>
+      <div class="flex flex-col justify-center prose prose-invert">
+        <h2>Motivo</h2>
+        <p transition:name={`reason-${slug}`} class="mb-4 text-gray-300 max-w-sm">{reason}</p>
+      </div>
+      <div class="prose prose-invert">
+        <h2>Descripción</h2>
+        <Content />
+      </div>
+    </main>
+  </div>
+</Layout>
