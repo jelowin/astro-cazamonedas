@@ -17,37 +17,17 @@ const { title } = Astro.props;
 		<title>{title}</title>
 		<ClientRouter />
 	</head>
-	<body>
-		<div>
+	<body class="grid place-content-center">
+		<div class="container mx-auto py-8 px-4">
 			<slot />
 		</div>
 	</body>
 </html>
 
 <style is:global>
-	:root {
-		--accent: 136, 58, 234;
-		--accent-light: 224, 204, 250;
-		--accent-dark: 49, 10, 101;
-		--accent-gradient: linear-gradient(
-			45deg,
-			rgb(var(--accent)),
-			rgb(var(--accent-light)) 30%,
-			white 60%
-		);
-	}
-	
 	html {
 		font-family: system-ui, sans-serif;
 		background: #13151a;
 		color: #fff;
-	}
-
-	body {
-		@apply grid place-content-center p-20;
-	}
-
-	body > div {
-		@apply container;
 	}
 </style>
