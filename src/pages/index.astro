@@ -1,40 +1,41 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { turso } from '../../turso.js';
+import Layout from "../layouts/Layout.astro";
+import { turso } from "../../turso.js";
 
-export const prerender = true
-
-const {rows} = await turso.execute('SELECT * FROM coins')
+const { rows } = await turso.execute("SELECT * FROM coins");
 ---
 
 <Layout title="Cazamonedas">
-	<main class="h-full w-full md:max-w-screen-xl">
-		<h1 class="text-center text-4xl md:text-7xl font-extrabold mb-14 md:mb-24">
-			Cazamonedas
-		</h1>
-		<section class="grid gap-6 md:grid-cols-2">
-			{
-				rows.map(coin => {
-					const { id, country, imageSrc, reason, year} = coin
+  <main class="h-full w-full md:max-w-screen-xl">
+    <h1 class="text-center text-4xl md:text-7xl font-extrabold mb-14 md:mb-24">
+      Cazamonedas
+    </h1>
+    <section class="grid gap-6 md:grid-cols-2">
+      {
+        rows.map((coin) => {
+          const { id, country, imageSrc, reason, year } = coin;
 
-					return (
-						<article class="my-4 md:flex md:flex-row">
-							<img
-								alt={`${reason}`}
-								class="rounded w-9/12 mx-auto md:mx-2 md:mb-4 md:w-48 md:mr-5 md:transition md:hover:scale-125"
-								src={`${imageSrc}`}
-							/>
+          return (
+            <article class="my-4 md:flex md:flex-row">
+              <img
+                alt={`${reason}`}
+                class="object-contain rounded w-9/12 mx-auto md:mx-2 md:mb-4 md:w-48 md:mr-7 md:transition md:hover:scale-125"
+                src={`${imageSrc}`}
+              />
 
-							<header class="md:flex md:flex-col">
-								<h2 class="text-xl md:text-2xl my-2 font-bold leading-tight">
-									{year} - {country}
-								</h2>
-								<p>{reason}</p>
-							</header>
-						</article>
-					)
-				})
-			}
-		</section>
-	</main>
+              <header class="md:flex md:flex-col">
+                <h2 class="text-xl md:text-2xl my-2 font-bold leading-tight">
+                  {year} - {country}
+                </h2>
+                <p class="my-4">{reason}</p>
+                <button class="w-full p-2 rounded-md bg-blue-500">
+                  Lo tengo
+                </button>
+              </header>
+            </article>
+          );
+        })
+      }
+    </section>
+  </main>
 </Layout>

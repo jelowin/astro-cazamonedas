@@ -1,0 +1,27 @@
+---
+import { SignIn, SignOut } from "auth-astro/components";
+import { getSession } from "auth-astro/server";
+
+const session = await getSession(Astro.request);
+---
+
+<>
+  {
+    session ? (
+      <div class="flex items-center">
+        <p class="mr-2">Hola, {session.user?.name}</p>
+        <SignOut class="flex items-center justify-end gap-3 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <img src="/assets/signout.svg" alt="Cerrar sesión" />
+        </SignOut>
+      </div>
+    ) : (
+      <SignIn
+        class="flex items-center justify-end gap-3 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        provider="google"
+      >
+        <img src="/assets/google.svg" alt="Login con Google" />
+        Iniciar sesión con Google
+      </SignIn>
+    )
+  }
+</>

@@ -1,33 +1,52 @@
 ---
-import { ClientRouter } from 'astro:transitions';
+import { ClientRouter } from "astro:transitions";
+import { getSession } from "auth-astro/server";
+import { turso } from "../../turso.js";
+import { randomUUID } from "crypto";
 
-interface Props {
-	title: string;
-}
-
+import LoginButton from "../components/LoginButton.astro";
 const { title } = Astro.props;
+
+const session = await getSession(Astro.request);
+if (session) {
+  const { rows } = await turso.execute({
+    sql: "SELECT * FROM users WHERE email = ?",
+    args: [session.user?.email],
+  });
+
+  console.log("user", rows);
+
+  if (!rows.length) {
+    const uuid = randomUUID();
+    await turso.execute(
+      "INSERT INTO users (id, email) VALUES (?, ?) ON CONFLICT (email) DO NOTHING",
+      [uuid, session.user?.email]
+    );
+  }
+}
 ---
 
 <!doctype html>
 <html lang="es">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<title>{title}</title>
-		<ClientRouter />
-	</head>
-	<body class="grid place-content-center">
-		<div class="container mx-auto py-8 px-4">
-			<slot />
-		</div>
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <ClientRouter />
+  </head>
+  <body class="grid place-content-center">
+    <header class="flex justify-end">
+      <LoginButton />
+    </header>
+    <div class="container mx-auto py-8 px-4">
+      <slot />
+    </div>
+  </body><style is:global>
+    html {
+      font-family: system-ui, sans-serif;
+      background: #e2e8f0;
+      color: #1a202c;
+    }
+  </style>
 </html>
-
-<style is:global>
-	html {
-		font-family: system-ui, sans-serif;
-		background: #13151a;
-		color: #fff;
-	}
-</style>
