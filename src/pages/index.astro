@@ -1,8 +1,19 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import CoinButton from "../components/CoinButton.jsx";
 import { turso } from "../../turso.js";
 
-const { rows } = await turso.execute("SELECT * FROM coins");
+const user_cookie_uuid = Astro.cookies.get("caz_user_uuid")?.value;
+const { rows } = await turso.execute(
+  `SELECT
+      c.*,
+      (uc.user_id IS NOT NULL) AS exists_in_user_coins
+  FROM coins c
+  LEFT JOIN user_coins uc
+      ON c.id = uc.coin_id AND uc.user_id = ?;
+`,
+  [user_cookie_uuid],
+);
 ---
 
 <Layout title="Cazamonedas">
@@ -13,10 +24,11 @@ const { rows } = await turso.execute("SELECT * FROM coins");
     <section class="grid gap-6 md:grid-cols-2">
       {
         rows.map((coin) => {
-          const { id, country, imageSrc, reason, year } = coin;
+          const { id, country, imageSrc, reason, year, exists_in_user_coins } =
+            coin;
 
           return (
-            <article class="my-4 md:flex md:flex-row">
+            <article class="coin my-4 md:flex md:flex-row">
               <img
                 alt={`${reason}`}
                 class="object-contain rounded w-9/12 mx-auto md:mx-2 md:mb-4 md:w-48 md:mr-7 md:transition md:hover:scale-125"
@@ -28,9 +40,12 @@ const { rows } = await turso.execute("SELECT * FROM coins");
                   {year} - {country}
                 </h2>
                 <p class="my-4">{reason}</p>
-                <button class="w-full p-2 rounded-md bg-blue-500">
-                  Lo tengo
-                </button>
+                <CoinButton
+                  coinId={id}
+                  existsInUserCoins={exists_in_user_coins}
+                  userCookieId={user_cookie_uuid}
+                  client:load
+                />
               </header>
             </article>
           );
